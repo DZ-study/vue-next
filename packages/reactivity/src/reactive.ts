@@ -1,3 +1,5 @@
+// 创建响应式对象createReactiveObject
+
 import { isObject, toRawType, def } from '@vue/shared'
 import {
   mutableHandlers,
@@ -31,10 +33,11 @@ export const readonlyMap = new WeakMap<Target, any>()
 
 const enum TargetType {
   INVALID = 0,
-  COMMON = 1,
-  COLLECTION = 2
+  COMMON = 1, // 普通对象
+  COLLECTION = 2 // 集合
 }
 
+// 映射对象类型
 function targetTypeMap(rawType: string) {
   switch (rawType) {
     case 'Object':
@@ -51,8 +54,14 @@ function targetTypeMap(rawType: string) {
 }
 
 function getTargetType(value: Target) {
+  /**
+   * Object.isExtensible():
+   * value不是对象或者不可扩展，都返回false
+   */
+  console.log(toRawType(value))
   return value[ReactiveFlags.SKIP] || !Object.isExtensible(value)
     ? TargetType.INVALID
+    // extract "RawType" from strings like "[object RawType]" 截取对象原生类型
     : targetTypeMap(toRawType(value))
 }
 
@@ -89,8 +98,8 @@ export function reactive(target: object) {
   }
   return createReactiveObject(
     target,
-    false,
-    mutableHandlers,
+    false, // not readonly
+    mutableHandlers, // 默认proxy对象
     mutableCollectionHandlers
   )
 }
@@ -111,6 +120,8 @@ export function shallowReactive<T extends object>(target: T): T {
 
 type Primitive = string | number | boolean | bigint | symbol | undefined | null
 type Builtin = Primitive | Function | Date | Error | RegExp
+
+// ???
 export type DeepReadonly<T> = T extends Builtin
   ? T
   : T extends Map<infer K, infer V>
@@ -163,12 +174,19 @@ export function shallowReadonly<T extends object>(
   )
 }
 
+/**
+ * @param target 响应式对象
+ * @param isReadonly boolean ？？
+ * @param baseHandlers { get， set， deleteProperty， has， ownKeys }
+ * @param collectionHandlers { get }
+ */
 function createReactiveObject(
   target: Target,
   isReadonly: boolean,
   baseHandlers: ProxyHandler<any>,
   collectionHandlers: ProxyHandler<any>
 ) {
+  // console.log(target, isReadonly, baseHandlers, collectionHandlers)
   if (!isObject(target)) {
     if (__DEV__) {
       console.warn(`value cannot be made reactive: ${String(target)}`)
@@ -190,6 +208,7 @@ function createReactiveObject(
     return existingProxy
   }
   // only a whitelist of value types can be observed.
+  // 只有Object，数组，map，set能被转化为响应式
   const targetType = getTargetType(target)
   if (targetType === TargetType.INVALID) {
     return target

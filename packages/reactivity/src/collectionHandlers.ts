@@ -1,3 +1,8 @@
+/**
+ * Proxy的局限：访问内置对象（set、map、weakSet、weakMap）时，数据劫持，改变this指向
+ * 具体参考链接 https://javascript.info/proxy#proxy-limitations
+ */
+
 import { toRaw, reactive, readonly, ReactiveFlags } from './reactive'
 import { track, trigger, ITERATE_KEY, MAP_KEY_ITERATE_KEY } from './effect'
 import { TrackOpTypes, TriggerOpTypes } from './operations'
@@ -298,6 +303,7 @@ iteratorMethods.forEach(method => {
   )
 })
 
+// 通过instrumentations实现数据劫持
 function createInstrumentationGetter(isReadonly: boolean, shallow: boolean) {
   const instrumentations = shallow
     ? shallowInstrumentations

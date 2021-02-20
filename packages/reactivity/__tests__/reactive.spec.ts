@@ -1,5 +1,5 @@
 import { ref, isRef } from '../src/ref'
-import { reactive, isReactive, toRaw, markRaw } from '../src/reactive'
+import { reactive, isReactive, toRaw, markRaw, shallowReactive } from '../src/reactive'
 import { computed } from '../src/computed'
 import { effect } from '../src/effect'
 
@@ -18,7 +18,7 @@ describe('reactivity/reactive', () => {
     expect(Object.keys(observed)).toEqual(['foo'])
   })
 
-  test('proto', () => {
+  test('proto', () => { // TODO 这个测试没看懂
     const obj = {}
     const reactiveObj = reactive(obj)
     expect(isReactive(reactiveObj)).toBe(true)
@@ -33,6 +33,7 @@ describe('reactivity/reactive', () => {
   })
 
   test('nested reactives', () => {
+    // 嵌套对象 深度响应
     const original = {
       nested: {
         foo: 1
@@ -43,6 +44,17 @@ describe('reactivity/reactive', () => {
     expect(isReactive(observed.nested)).toBe(true)
     expect(isReactive(observed.array)).toBe(true)
     expect(isReactive(observed.array[0])).toBe(true)
+  })
+
+  test('shallow reactive', () => {
+    const original = {
+      nested: {
+        foo: 1
+      },
+      array: [{ bar: 3 }]
+    }
+    const observed = shallowReactive(original)
+    expect(isReactive(observed.array[0])).toBe(false)
   })
 
   test('observing subtypes of IterableCollections(Map, Set)', () => {

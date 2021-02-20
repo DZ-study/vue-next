@@ -217,6 +217,7 @@ export const readonlyHandlers: ProxyHandler<object> = {
   }
 }
 
+// shallow：浅拷贝
 export const shallowReactiveHandlers: ProxyHandler<object> = extend(
   {},
   mutableHandlers,
