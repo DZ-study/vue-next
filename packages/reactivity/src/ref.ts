@@ -61,6 +61,7 @@ class RefImpl<T> {
   }
 
   get value() {
+    // console.log('get: ', this)
     track(toRaw(this), TrackOpTypes.GET, 'value')
     return this._value
   }

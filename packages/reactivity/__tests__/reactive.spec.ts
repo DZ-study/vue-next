@@ -175,6 +175,7 @@ describe('reactivity/reactive', () => {
     const observed = reactive(original)
     expect(toRaw(observed)).toBe(original)
     expect(toRaw(original)).toBe(original)
+    expect(isReactive(toRaw(observed))).toBe(false)
   })
 
   test('toRaw on object using reactive as prototype', () => {
